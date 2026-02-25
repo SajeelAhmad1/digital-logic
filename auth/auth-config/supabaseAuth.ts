@@ -1,125 +1,70 @@
-// auh/auth-config/supabaseAuth.ts 
- 
-import { createClient } from "@/lib/supabase/client"; 
-// signup payload: { name, email, phone, password }
-export async function signupSB(payload: any) {
-  const supabase = await createClient()
-  const { name, email, phone, password } = payload;
-  const { data, error } = await supabase.auth.signUp({
-    email, // you also signup with phone instaead of email, (check supabase api docs)
-    password,
-    options: {
-      data: { name, phone },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/signin`,
-    },
-  });
-  if (error) throw error;
-  if (data?.user?.identities?.length === 0)
-    throw new Error(
-      'User with this email already exists, please login instead'
-    );
+// auth/auth-config/supabaseAuth.ts
+import { createClient } from '@/lib/supabase/client';
+import { usernameToInternalEmail } from '@/lib/supabase/adminClient';
 
-  return data;
-}
+/**
+ * Sign in with username + password.
+ * We look up the synthetic internal email from the username
+ * and pass it to Supabase's signInWithPassword.
+ */
+export async function signinSB(payload: { username: string; password: string }) {
+  const supabase = createClient();
+  const email = usernameToInternalEmail(payload.username);
 
-// signin payload can be { email,password } or adapt per your flow
-export async function signinSB(payload: any) {
-  const supabase = await createClient()
-  const { email, password } = payload;
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    password,
+    password: payload.password,
   });
-  if (error) throw error;
-  return data;
-}
 
-// signin with OTP
-export async function signinWithMagicLinkSB(payload: any) {
-  const supabase = await createClient()
-  const { email } = payload;
-  const { data, error } = await supabase.auth.signInWithOtp({ email }); // you also login with phone number (check supabase api docs)
   if (error) throw error;
-  return data;
-}
-
-//  signin with google
-export async function signinWithGoogleSB() {
-  const supabase = await createClient()
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-    },
-  });
-  if (error) throw error;
-  return data;
-}
-
-// signin with facebook
-export async function signinWithFacebookSB() {
-  const supabase = await createClient()
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "facebook",
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-    },
-  });
-  if (error) throw error;
-  return data;
-}
-
- 
-// Supabase reset sends email link by default
-export async function sendResetPasswordLinkSB(email: string) {
-  const supabase = await createClient()
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`,
-  });
-  if (error) throw error;
-  return true;
-}
-
-// resetPassword
-export async function resetPasswordSB(tokenOrPayload: any, password?: string) {
-  const supabase = await createClient()
-  const { data, error } = await supabase.auth.updateUser({
-    password: password,
-  });
-  if (error) throw error;
-  //logout after password reset
-  await supabase.auth.signOut();
   return data;
 }
 
 export async function logoutSB() {
-  const supabase = await createClient()
+  const supabase = createClient();
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
   return true;
 }
 
-// Supabase sends verification emails automatically on signUp (config dependent)
-export async function verifyEmailSB(token: string) {
-  const supabase = await createClient()
-  // If you implement a custom verification, call your server endpoint
-  return true;
-}
+// ── Kept for completeness but not used in this flow ──────────────────────────
 
-export async function sendVerificationEmailSB(email: string) {
-  const supabase = await createClient()
-  // Supabase sends verification emails automatically on signUp (config dependent)
-  return true;
-}
-
-export async function verifyOTPSB(payload: any) {
-  const supabase = await createClient()
-  const { email, token } = payload;
-  let { data, error } = await supabase.auth.verifyOtp({
-    email,
-    token,
-    type: 'recovery',
+export async function signinWithGoogleSB() {
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback` },
   });
   if (error) throw error;
   return data;
+}
+
+export async function signinWithFacebookSB() {
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'facebook',
+    options: { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback` },
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function sendResetPasswordLinkSB(_email: string) {
+  throw new Error('Password reset is managed by the admin.');
+}
+
+export async function resetPasswordSB(_token: any, _password?: string) {
+  throw new Error('Password reset is managed by the admin.');
+}
+
+export async function signupSB(_payload: any) {
+  throw new Error('Signup is disabled. Users are created by the admin.');
+}
+
+export async function verifyEmailSB(_token: string) {
+  return true;
+}
+
+export async function verifyOTPSB(_payload: any) {
+  return true;
 }

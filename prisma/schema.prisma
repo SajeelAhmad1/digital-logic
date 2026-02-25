@@ -8,23 +8,13 @@ datasource db {
 }
 
 model User {
-  // id for relational database
-  // id   String    @id @default(cuid())
-  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
-
-  name                String?   @default("")
-  email               String?   @default("") @unique
-  phone               String?   @default("") @unique
-  address             String?   @default("")
-  state               String?   @default("")
-  country             String?   @default("")
-  dob                 String?   @default("")
-  isEmailVerified     Boolean   @default(false)
-  isPhoneVerified     Boolean   @default(false) 
-  pwHash              String?   @default("")
-
-  phoneOtp            String?   @default("")
-  phoneOtpDoC         DateTime?
-
-  isAdmin             Boolean   @default(false)
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  username    String   @unique
+  email       String?  @unique
+  phone       String?  @default("")
+  pwHash      String?  @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  supabaseUid String?  @unique
 }
