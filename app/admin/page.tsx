@@ -128,7 +128,7 @@ export default function AdminPage() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle>Users</CardTitle>
-              <CardDescription>Manage student accounts.</CardDescription>
+              <CardDescription>Manage user accounts.</CardDescription>
             </div>
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
