@@ -1,0 +1,140 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: black;
+  width: 100%;
+  padding: 10px;
+}
+
+.logo-panel {
+  display: flex;
+  align-items: center;
+  background-color: black;
+  gap: 30px;
+}
+
+.nav-option {
+  background-color: black;
+  color: white;
+  font-size: 20px;
+}
+
+.btn {
+  padding: 15px;
+  border: none;
+  background-color: #00c489;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 3px;
+  border-radius: 10px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #009468;
+}
+
+.btn:active {
+  background-color: #008059;
+}
+
+.btn-group {
+  padding: 8px 20px;
+  border: none;
+  background-color: #00c489;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 5px;
+  padding-right: 30px;
+  width: 100%;
+  cursor: pointer;
+
+  @media only screen and (max-width: 576px) {
+    font-size: 10px;
+    padding-right: 30px;
+    font-weight: 500;
+  }
+}
+
+.btn-group:hover {
+  background-color: #009468;
+}
+
+.btn-group:active {
+  background-color: #008059;
+}
+
+.btn-dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.dropdown {
+  position: absolute;
+  right: 12%;
+  width: 11px;
+
+  @media only screen and (max-width: 576px) {
+    top: 42%;
+    font-size: 16px;
+    width: 9px;
+    right: 15%;
+  }
+}
+
+.inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  width: 100%;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.input-field {
+  margin-bottom: 10px;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #646464;
+  width: 100%;
+  background-color: white;
+}
+
+.input-field:focus {
+  outline: 1px solid #727272;
+}
+
+.input-field::placeholder {
+  text-transform: capitalize;
+}
+
+.menus-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.menu-item {
+  font-size: 16px;
+  font-weight: 700;
+  padding-bottom: 2px;
+  border-bottom: 3px solid #00c48900;
+  user-select: none;
+  cursor: pointer;
+}
+
+.menu-item-active {
+  border-color: #00c489;
+}

@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  // id for relational database
+  // id   String    @id @default(cuid())
+  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
+
+  name                String?   @default("")
+  email               String?   @default("") @unique
+  phone               String?   @default("") @unique
+  address             String?   @default("")
+  state               String?   @default("")
+  country             String?   @default("")
+  dob                 String?   @default("")
+  isEmailVerified     Boolean   @default(false)
+  isPhoneVerified     Boolean   @default(false) 
+  pwHash              String?   @default("")
+
+  phoneOtp            String?   @default("")
+  phoneOtpDoC         DateTime?
+
+  isAdmin             Boolean   @default(false)
+}

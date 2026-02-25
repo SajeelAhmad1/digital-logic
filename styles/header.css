@@ -1,0 +1,14 @@
+.logo-panel {
+  display: flex;
+  align-items: start;
+  gap: 30px;
+}
+
+.menu {
+  margin-top: 2px;
+  cursor: pointer;
+
+  @media only screen and (min-width: 992px) {
+    display: none;
+  }
+}
