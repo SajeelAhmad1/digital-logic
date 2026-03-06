@@ -1,19 +1,21 @@
-// lib/getCurrentUser.ts
-import { createClient } from '@/lib/supabase/server';
+// lib/auth.ts
 import prisma from '@/prisma/prisma';
+import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
 export async function getCurrentUser() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const token = cookies().get('token')?.value;
+  if (!token) return null;
 
-  if (!user) return null;
-
-  const dbUser = await prisma.user.findUnique({
-    where: { supabaseUid: user.id },
-    select: { id: true, name: true, username: true },
-  });
-
-  return dbUser;
+  try {
+    const payload = jwt.verify(token, JWT_SECRET) as { userId: string };
+    return await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { id: true, username: true, name: true, phone: true },
+    });
+  } catch {
+    return null;
+  }
 }

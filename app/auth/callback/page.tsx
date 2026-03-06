@@ -8,18 +8,18 @@ import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
 
 export default function OAuthCallback() {
-  const supabase = createClient();
+  // const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {
     const handleSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      console.log(data, 'userdata');
-      if (error || !data.session) {
-        toast.error('OAuth login failed');
-        router.push('/auth/signin');
-        return;
-      }
+      // const { data, error } = await supabase.auth.getSession();
+      // console.log(data, 'userdata');
+      // if (error || !data.session) {
+      //   toast.error('OAuth login failed');
+      //   router.push('/auth/signin');
+      //   return;
+      // }
 
       toast.success('Logged in successfully!');
       router.push('/');

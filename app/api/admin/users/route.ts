@@ -1,7 +1,5 @@
-// app/api/admin/users/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { isAdminRequest } from '@/lib/adminAuth';
-import { createAdminClient, usernameToInternalEmail } from '@/lib/supabase/adminClient';
 import prisma from '@/prisma/prisma';
 import bcrypt from 'bcryptjs';
 
@@ -11,78 +9,84 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   }
 
-  const users = await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      name: true,
-      username: true,
-      phone: true,
-      createdAt: true,
-    },
-  });
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        phone: true,
+        createdAt: true,
+      },
+    });
 
-  return NextResponse.json({ users });
+    return NextResponse.json({ users });
+
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: 'Failed to fetch users.' },
+      { status: 500 }
+    );
+  }
 }
 
 // POST — create a user
 export async function POST(req: NextRequest) {
-  try{
+  try {
     if (!(await isAdminRequest(req))) {
-    return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-  }
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+    }
 
-  const { name, username, phone, password } = await req.json();
+    const { name, username, phone, password } = await req.json();
 
-  if (!name || !username || !password || !username) {
-    return NextResponse.json(
-      { error: 'Name, username, and password are required.' },
-      { status: 400 }
-    );
-  }
+    if (!name || !username || !password) {
+      return NextResponse.json(
+        { error: 'Name, username, and password are required.' },
+        { status: 400 }
+      );
+    }
 
-  const pwHash = await bcrypt.hash(password, 12);
-
-  // Check username is unique in our DB before even hitting Supabase
-  const existing = await prisma.user.findUnique({ where: { username } });
-  if (existing) {
-    return NextResponse.json(
-      { error: 'Username is already taken.' },
-      { status: 409 }
-    );
-  }
-
-  const internalEmail = usernameToInternalEmail(username);
-  const supabase = createAdminClient();
-
-  // Create in Supabase Auth — email_confirm: true skips any verification email
-  const { data: authData, error: authError } =
-    await supabase.auth.admin.createUser({
-      email: internalEmail,
-      password,
-      email_confirm: true,
-      user_metadata: { name, username, phone },
+    // Check if username already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { username },
     });
 
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 400 });
-  }
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'Username is already taken.' },
+        { status: 409 }
+      );
+    }
 
-  // Create the Prisma record
-  const user = await prisma.user.create({
-    data: {
-      email: internalEmail,
-      name,
-      username,
-      phone: phone || '',
-      pwHash,
-      supabaseUid: authData.user.id,
-    },
-  });
+    // Hash password
+    const pwHash = await bcrypt.hash(password, 12);
 
-  return NextResponse.json({ user }, { status: 201 });
-  }catch(error:any){
-    console.log(error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        name,
+        username,
+        phone: phone || '',
+        pwHash,
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        phone: true,
+        createdAt: true,
+      },
+    });
+
+    return NextResponse.json({ user }, { status: 201 });
+
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: 'Failed to create user.' },
+      { status: 500 }
+    );
   }
 }

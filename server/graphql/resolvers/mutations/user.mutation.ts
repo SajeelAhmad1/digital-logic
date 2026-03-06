@@ -48,7 +48,7 @@ export const login = async (
   _: unknown,
   { email, password }: LoginUserInput
 ) => {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findFirst({ where: { email } });
   if (!user) {
     return {
       error: 'Incorrect email or password',
@@ -77,7 +77,7 @@ export const sendResetPasswordLink = async (
   _: unknown,
   { email }: { email: string }
 ) => {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findFirst({ where: { email } });
   if (user) {
     await sendForgetPasswordEmail(email);
   }
@@ -90,11 +90,11 @@ export const resetPassword = async (
   { token, password }: ResetPasswordArgs
 ) => {
   const payload = getPayload({ token });
-  if (payload?.data?.email) {
+  if (payload?.data?.username) {
     isPasswordValid(password);
     const pwHash = await bcrypt.hash(password, 10);
     await prisma.user.update({
-      where: { email: payload?.data?.email },
+      where: { username: payload?.data?.username },
       data: { pwHash },
     });
     return { status: SUCCESS };

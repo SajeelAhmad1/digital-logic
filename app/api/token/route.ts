@@ -10,7 +10,7 @@ export const GET = async () => {
   const { name, email, image } = (session?.user || {}) as any;
   
   if (email) {
-    let user = await prisma.user.findUnique({ where: { email } });
+    let user = await prisma.user.findFirst({ where: { email } });
     
     if (!user) {
       // Generate username from email

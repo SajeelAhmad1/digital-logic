@@ -56,16 +56,26 @@ export function useAuth() {
 
   // signin — payload: { username, password }
   const signin = async (values: { username: string; password: string }) => {
-    try {
-      setLoadingType('signin');
-      await signinSB(values);
-      handleSuccess('Logged in successfully.', '/');
-    } catch (err: any) {
-      toast.error(err?.message || 'Login failed. Check your credentials.');
-    } finally {
-      setLoadingType(null);
-    }
-  };
+  setLoadingType('signin');
+  try {
+    const res = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+
+    // Store JWT in cookie or localStorage
+    Cookies.set('token', data.token);
+
+    handleSuccess('Logged in successfully.', '/');
+  } catch (err: any) {
+    toast.error(err?.message || 'Login failed.');
+  } finally {
+    setLoadingType(null);
+  }
+};
 
   const logout = async () => {
     try {

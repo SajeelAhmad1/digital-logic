@@ -19,7 +19,7 @@ type Progress = {
 
 export default function DashboardClient({ user, courses }: Props) {
   const router = useRouter();
-  const { logout } = useAuth();
+  // const { logout } = useAuth();
 
   // Simulating no courses started initially — flip to test "Keep learning" state
   const [inProgress, setInProgress] = useState<Record<string, Progress>>({});
@@ -45,8 +45,58 @@ export default function DashboardClient({ user, courses }: Props) {
   return (
     <div className="min-h-screen" style={{ background: '#f7f6f2', fontFamily: "'Georgia', serif" }}>
 
+      {/* ── Responsive styles ── */}
+      <style>{`
+        @media (max-width: 768px) {
+          .dash-sidebar { display: none !important; }
+          .dash-layout { flex-direction: column !important; }
+          .dash-main {
+            padding: 24px 16px !important;
+            max-width: 100% !important;
+          }
+          .dash-course-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .dash-nav {
+            padding: 0 16px !important;
+          }
+          .dash-ip-footer {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .dash-ip-footer .dash-practice-label {
+            padding: 12px 16px !important;
+          }
+          .dash-ip-footer .dash-resume-btn {
+            padding: 14px 16px !important;
+            justify-content: center !important;
+          }
+          .dash-ip-info {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 8px !important;
+          }
+          .dash-ip-title {
+            font-size: 18px !important;
+          }
+          .dash-page-title {
+            font-size: 22px !important;
+          }
+          .dash-user-name { display: none !important; }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .dash-main {
+            padding: 32px 28px !important;
+          }
+          .dash-course-grid {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+          }
+        }
+      `}</style>
+
       {/* ── Top nav ─────────────────────────────────────────────────── */}
-      <nav style={{
+      <nav className="dash-nav" style={{
         background: '#fff',
         borderBottom: '1px solid #e5e3dc',
         padding: '0 32px',
@@ -59,7 +109,7 @@ export default function DashboardClient({ user, courses }: Props) {
           Digital Logic
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontWeight: 600, fontSize: 15, color: '#1a1a1a' }}>{user.name}</span>
+          <span className="dash-user-name" style={{ fontWeight: 600, fontSize: 15, color: '#1a1a1a' }}>{user.name}</span>
           <div style={{
             width: 36, height: 36, borderRadius: '50%',
             background: '#5b4fcf', color: '#fff',
@@ -67,7 +117,7 @@ export default function DashboardClient({ user, courses }: Props) {
             fontWeight: 700, fontSize: 13, cursor: 'pointer',
           }}
             title="Logout"
-            onClick={() => logout()}
+            // onClick={() => logout()}
           >
             {initials}
           </div>
@@ -75,10 +125,10 @@ export default function DashboardClient({ user, courses }: Props) {
       </nav>
 
       {/* ── Layout ──────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', minHeight: 'calc(100vh - 56px)' }}>
+      <div className="dash-layout" style={{ display: 'flex', minHeight: 'calc(100vh - 56px)' }}>
 
         {/* Sidebar */}
-        <aside style={{
+        <aside className="dash-sidebar" style={{
           width: 220, background: '#fff',
           borderRight: '1px solid #e5e3dc',
           padding: '24px 0',
@@ -88,15 +138,15 @@ export default function DashboardClient({ user, courses }: Props) {
         </aside>
 
         {/* Main content */}
-        <main style={{ flex: 1, padding: '40px 48px', maxWidth: 900 }}>
+        <main className="dash-main" style={{ flex: 1, padding: '40px 48px', maxWidth: 900 }}>
 
           {/* ── STATE 1: No courses started ── */}
           {!hasStarted && (
             <>
-              <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 28, color: '#1a1a1a', fontStyle: 'italic' }}>
+              <h1 className="dash-page-title" style={{ fontSize: 28, fontWeight: 700, marginBottom: 28, color: '#1a1a1a', fontStyle: 'italic' }}>
                 Start learning
               </h1>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
+              <div className="dash-course-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
                 {courses.map((course) => (
                   <CourseCard
                     key={course.id}
@@ -111,7 +161,7 @@ export default function DashboardClient({ user, courses }: Props) {
           {/* ── STATE 2: Courses in progress ── */}
           {hasStarted && (
             <>
-              <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24, color: '#1a1a1a', fontStyle: 'italic' }}>
+              <h1 className="dash-page-title" style={{ fontSize: 28, fontWeight: 700, marginBottom: 24, color: '#1a1a1a', fontStyle: 'italic' }}>
                 Keep learning
               </h1>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -140,7 +190,7 @@ export default function DashboardClient({ user, courses }: Props) {
                   <h2 style={{ fontSize: 20, fontWeight: 700, margin: '40px 0 20px', color: '#1a1a1a' }}>
                     More courses
                   </h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
+                  <div className="dash-course-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
                     {courses
                       .filter((c) => !inProgress[c.id])
                       .map((course) => (
@@ -292,7 +342,7 @@ function InProgressCard({
       </div>
 
       {/* Course info */}
-      <div style={{
+      <div className="dash-ip-info" style={{
         padding: '16px 20px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         borderBottom: '1px solid #f0ede6',
@@ -301,7 +351,7 @@ function InProgressCard({
           <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: '#888', textTransform: 'uppercase', margin: '0 0 4px', fontFamily: 'monospace' }}>
             Course
           </p>
-          <h3 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', margin: '0 0 4px', fontStyle: 'italic' }}>
+          <h3 className="dash-ip-title" style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', margin: '0 0 4px', fontStyle: 'italic' }}>
             {course.title}
           </h3>
           <p style={{ fontSize: 13, color: '#888', margin: 0 }}>
@@ -312,14 +362,15 @@ function InProgressCard({
       </div>
 
       {/* Footer actions */}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ flex: 1, padding: '14px 20px', fontSize: 13, color: '#555' }}>
+      <div className="dash-ip-footer" style={{ display: 'flex', alignItems: 'center' }}>
+        <div className="dash-practice-label" style={{ flex: 1, padding: '14px 20px', fontSize: 13, color: '#555' }}>
           Start practice session{' '}
           <span style={{ color: '#888', fontSize: 12 }}>
             {practiceToday}/{practiceTotal} today
           </span>
         </div>
         <button
+          className="dash-resume-btn"
           onClick={onResume}
           style={{
             background: '#5b4fcf',
